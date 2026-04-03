@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/*
+ * Next.js injects <nextjs-portal> under <body> in dev. If <body> is display:flex, the portal
+ * can participate in flex layout and distort the page (github.com/vercel/next.js/issues/70675).
+ * We moved flex to an inner wrapper; this rule is a safety net for the portal host.
+ */
+nextjs-portal {
+  position: absolute;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: #1c1917;
+  color: #fff;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+}

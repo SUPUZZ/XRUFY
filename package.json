@@ -1,26 +1,30 @@
 {
-  "name": "xrufy-site",
-  "version": "0.1.0",
+  "name": "xrufy",
   "private": true,
+  "description": "XRUFY monorepo: web (Next.js) + server (Node API)",
+  "workspaces": [
+    "web",
+    "server"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.2.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "predev": "node scripts/free-api-port.mjs",
+    "dev": "concurrently -n web,server -c cyan,magenta \"npm run dev -w web\" \"npm run dev -w server\"",
+    "dev:web": "npm run dev -w web",
+    "dev:server": "npm run dev -w server",
+    "build": "npm run build -w server && npm run build -w web",
+    "start": "concurrently -n web,server -c cyan,magenta \"npm run start -w web\" \"npm run start -w server\"",
+    "start:web": "npm run start -w web",
+    "start:server": "npm run start -w server",
+    "lint": "npm run lint -w web",
+    "lint:server": "npm run lint -w server",
+    "db:push": "npm run db:push -w @xrufy/server",
+    "db:local-pg:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 start",
+    "db:local-pg:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 stop",
+    "db:local-pg:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 status",
+    "server:kill": "node scripts/free-api-port.mjs --verbose"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.2",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "concurrently": "^9.1.2",
+    "kill-port": "^2.0.1"
   }
 }

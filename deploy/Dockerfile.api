@@ -1,0 +1,28 @@
+# XRUFY Express API — production image (monorepo root = build context)
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY server/package.json server/
+RUN npm ci -w @xrufy/server
+
+FROM deps AS builder
+COPY server server
+RUN npm run build -w @xrufy/server
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+COPY package.json package-lock.json ./
+COPY server/package.json server/
+RUN npm ci -w @xrufy/server --omit=dev && npm cache clean --force
+COPY --from=builder /app/server/dist ./server/dist
+WORKDIR /app/server
+EXPOSE 4000
+CMD ["node", "dist/index.js"]
+
+# Optional: one-off schema sync (use same compose env as api). Not used in default CMD.
+FROM deps AS migrator
+COPY server server
+WORKDIR /app/server
+ENTRYPOINT ["npx", "drizzle-kit", "push"]

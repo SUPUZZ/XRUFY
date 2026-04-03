@@ -1,0 +1,19 @@
+# Local PostgreSQL for XRUFY API (server/)
+# Usage: docker compose up -d
+# Then:  copy server/.env.example → server/.env and set DATABASE_URL (see file)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: xrufy
+      POSTGRES_PASSWORD: xrufy
+      POSTGRES_DB: xrufy
+    volumes:
+      - xrufy_pg_data:/var/lib/postgresql/data
+
+volumes:
+  xrufy_pg_data:
