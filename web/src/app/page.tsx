@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogTeaserSection } from "@/components/BlogTeaserSection";
 import { BrandStorySection } from "@/components/BrandStorySection";
@@ -10,11 +11,20 @@ import { LearningSection } from "@/components/LearningSection";
 import { NewsletterBand } from "@/components/NewsletterBand";
 import { PlaySection } from "@/components/PlaySection";
 import { SafetySection } from "@/components/SafetySection";
+import { HomeJsonLd } from "@/components/seo/HomeJsonLd";
 import { TrustStrip } from "@/components/TrustStrip";
+import { HOME_DESCRIPTION, HOME_TITLE } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (
     <>
+      <HomeJsonLd />
       <Link href="#main" className="skip-link">
         Skip to content
       </Link>

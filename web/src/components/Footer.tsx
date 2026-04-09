@@ -16,9 +16,8 @@ export function Footer() {
         <div className="sm:col-span-2 lg:col-span-1">
           <Link
             href="/"
-            className="flex items-center gap-2 font-[family-name:var(--font-outfit)] text-lg font-extrabold text-stone-900"
+            className="font-[family-name:var(--font-outfit)] text-lg font-extrabold text-stone-900"
           >
-            <span className="size-7 rounded-md bg-gradient-to-br from-[#e85d04] to-amber-500" aria-hidden />
             XRUFY
           </Link>
           <p className="mt-3 max-w-xs text-sm text-stone-600">{BRAND_TAGLINE}</p>

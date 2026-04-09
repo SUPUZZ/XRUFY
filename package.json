@@ -21,7 +21,16 @@
     "db:local-pg:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 start",
     "db:local-pg:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 stop",
     "db:local-pg:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 status",
-    "server:kill": "node scripts/free-api-port.mjs --verbose"
+    "server:kill": "node scripts/free-api-port.mjs --verbose",
+    "docker:env": "node scripts/ensure-docker-env.mjs",
+    "docker:up": "node scripts/ensure-docker-env.mjs && node scripts/check-docker.mjs && docker compose --env-file docker.env up -d --build",
+    "docker:down": "docker compose --env-file docker.env down",
+    "docker:logs": "docker compose --env-file docker.env logs -f web api",
+    "docker:migrate": "node scripts/check-docker.mjs && docker compose --env-file docker.env --profile migrate run --rm db-push",
+    "dev:docker": "concurrently -n web,server -c cyan,magenta \"npm run dev:docker -w web\" \"npm run dev:docker -w server\"",
+    "docker:dev": "node scripts/ensure-docker-env.mjs && node scripts/check-docker.mjs && docker compose --env-file docker.env --profile dev up -d --build dev",
+    "docker:dev:logs": "docker compose --env-file docker.env logs -f dev",
+    "docker:dev:down": "docker compose --env-file docker.env --profile dev stop dev"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

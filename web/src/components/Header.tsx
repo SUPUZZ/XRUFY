@@ -22,13 +22,9 @@ export function Header() {
       <div className="mx-auto flex h-[3.75rem] max-w-6xl items-center justify-between gap-6 px-4 sm:px-6">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2 font-[family-name:var(--font-outfit)] text-xl font-extrabold tracking-tight text-stone-900"
+          className="shrink-0 font-[family-name:var(--font-outfit)] text-xl font-extrabold tracking-tight text-stone-900"
           onClick={close}
         >
-          <span
-            className="size-8 rounded-lg bg-gradient-to-br from-[#e85d04] to-amber-500 shadow-sm"
-            aria-hidden
-          />
           XRUFY
         </Link>
 

@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
 import { DM_Sans, Outfit } from "next/font/google";
+import { GALLERY_IMAGES } from "@/lib/constants";
+import {
+  getSiteUrl,
+  HOME_DESCRIPTION,
+  HOME_TITLE,
+  SEO_KEYWORDS,
+  SITE_NAME,
+} from "@/lib/seo";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -14,19 +22,51 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const siteUrl = getSiteUrl();
+const defaultOgImage = GALLERY_IMAGES[0]?.src ?? `${siteUrl}/family-scene-north-american.png`;
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "XRUFY — Build What You Imagine",
-    template: "%s — XRUFY",
+    default: HOME_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "XRUFY — interlocking construction blocks for curious kids. Build, learn, and play with educational preschool toys.",
+  description: HOME_DESCRIPTION,
+  keywords: [...SEO_KEYWORDS],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
   openGraph: {
-    title: "XRUFY — Build What You Imagine",
-    description:
-      "Interlocking STEAM construction set for preschoolers. Colorful blocks, figures & pets—shop on Amazon.",
     type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: SITE_NAME,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: [
+      {
+        url: defaultOgImage,
+        width: 1500,
+        height: 1500,
+        alt: GALLERY_IMAGES[0]?.alt ?? `${SITE_NAME} STEAM building blocks for kids`,
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: [defaultOgImage],
+  },
+  alternates: {
+    canonical: "/",
+  },
+  category: "toys",
 };
 
 export default function RootLayout({

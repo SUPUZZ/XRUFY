@@ -1,15 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
-import { AMAZON_PRODUCT_URL } from "@/lib/constants";
-import { HeroMotionBlocks } from "./HeroMotionBlocks";
+import { AMAZON_PRODUCT_URL, HERO_FEATURE_IMAGE } from "@/lib/constants";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-stone-200/80 bg-[#f7f7f5]">
+      {/* 暖色光晕 + 与右侧照片呼应，无棋盘格 */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_70%_15%,rgba(232,93,4,0.14),transparent_55%),radial-gradient(ellipse_50%_45%_at_5%_85%,rgba(13,148,136,0.11),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_78%_18%,rgba(232,93,4,0.12),transparent_58%),radial-gradient(ellipse_55%_50%_at_8%_88%,rgba(13,148,136,0.09),transparent_52%),radial-gradient(ellipse_70%_60%_at_15%_35%,rgba(245,230,211,0.45),transparent_55%),radial-gradient(ellipse_90%_40%_at_50%_100%,rgba(231,229,228,0.5),transparent_45%)]"
         aria-hidden
       />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%3E%3Cpath%20fill%3D%22%239a9a9a%22%20fill-opacity%3D%220.15%22%20d%3D%22M0%200h24v24H0zm24%2024h24v24H24z%22%2F%3E%3C%2Fsvg%3E')]" />
+      {/* 极淡纸质噪点感圆点，避免方格 */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.5] [background-image:radial-gradient(circle_at_center,rgba(120,113,106,0.055)_1px,transparent_1.5px)] [background-size:22px_22px]"
+        aria-hidden
+      />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 md:gap-12 md:py-20 lg:py-24">
         <div className="order-2 md:order-1">
@@ -56,8 +61,17 @@ export function Hero() {
             </div>
           </dl>
         </div>
-        <div className="order-1 flex justify-center md:order-2 md:justify-end">
-          <HeroMotionBlocks />
+        <div className="order-1 flex w-full justify-center md:order-2 md:justify-end">
+          <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-3xl border border-stone-200/80 bg-stone-200 shadow-lg ring-1 ring-black/5 md:max-w-xl">
+            <Image
+              src={HERO_FEATURE_IMAGE.src}
+              alt={HERO_FEATURE_IMAGE.alt}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+          </div>
         </div>
       </div>
     </section>

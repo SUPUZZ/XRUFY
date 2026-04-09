@@ -45,6 +45,7 @@ yarn-error.log*
 # env files
 .env
 .env*.local
+docker.env
 
 # vercel
 .vercel

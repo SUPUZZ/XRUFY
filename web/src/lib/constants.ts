@@ -5,6 +5,12 @@ export const BRAND_EMAIL = "xrufy_brand@163.com";
 
 export const BRAND_TAGLINE = "Interlocking construction toys for preschool creators.";
 
+/** Hero 右侧主视觉 */
+export const HERO_FEATURE_IMAGE = {
+  src: "/family-scene-north-american.png",
+  alt: "North American family with young children—warm, everyday home scene",
+} as const;
+
 export const GALLERY_IMAGES = [
   {
     src: "https://m.media-amazon.com/images/I/71i2MLp1juL._AC_SL1500_.jpg",

@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import { pinoHttp } from "pino-http";
 import "./loadEnv.js";
+import { adminRouter } from "./adminRoutes.js";
 import { db, pool } from "./db/client.js";
 import { saveFormSubmission } from "./db/saveFormSubmission.js";
 import { parseFormBody, submitParsedToWeb3 } from "./forms.js";
@@ -67,6 +68,8 @@ if (corsOrigins?.length) {
   );
 }
 
+app.use("/api/admin", adminRouter);
+
 app.get("/health", async (req, res) => {
   if (!pool) {
     res.json({ ok: true, service: "xrufy-server", database: "disabled" });
@@ -77,11 +80,30 @@ app.get("/health", async (req, res) => {
     res.json({ ok: true, service: "xrufy-server", database: "connected" });
   } catch (err) {
     req.log.error({ err }, "database ping failed");
+    const pgErr = err as { code?: string; message?: string };
+    const code = pgErr.code ?? "unknown";
+    const msg = pgErr.message ?? "";
+
+    let hint =
+      "Verify server/.env DATABASE_URL. From repo root: docker compose up -d, then npm run db:push -w @xrufy/server. See server/.env.example for Windows / port conflicts.";
+
+    if (code === "ECONNREFUSED" || /ECONNREFUSED/i.test(msg)) {
+      hint =
+        "Nothing accepted the connection on DATABASE_URL host:port. Start PostgreSQL (e.g. docker compose up -d from repo root), or use npm run db:local-pg:start for port 5433.";
+    } else if (code === "28P01") {
+      hint =
+        "Password authentication failed for the user in DATABASE_URL. Your machine’s PostgreSQL on 5432 may not have user xrufy—create role/database (server/.env.example) or set DATABASE_URL to credentials that exist.";
+    } else if (code === "3D000" || /database .* does not exist/i.test(msg)) {
+      hint =
+        "Database in DATABASE_URL does not exist. Create it, then run npm run db:push -w @xrufy/server.";
+    }
+
     res.json({
       ok: true,
       service: "xrufy-server",
       database: "error",
-      hint: "Check server/.env DATABASE_URL; run npm run db:local-pg:start; free port 4000 if an old server is stuck.",
+      code,
+      hint,
     });
   }
 });

@@ -1,5 +1,7 @@
 # XRUFY 服务器部署（Docker）
 
+**本机一键全栈**：优先使用仓库根目录的 **`docker-compose.yml`** 与 **`npm run docker:up`**（见根目录 `README.md`）。本目录的 `docker-compose.yml` 仍适用于在服务器上 **`cd deploy`** 后单独部署（构建上下文为上级目录 `..`）。
+
 ## 包含内容
 
 | 文件 | 说明 |

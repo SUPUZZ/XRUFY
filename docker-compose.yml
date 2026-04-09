@@ -1,19 +1,118 @@
-# Local PostgreSQL for XRUFY API (server/)
-# Usage: docker compose up -d
-# Then:  copy server/.env.example → server/.env and set DATABASE_URL (see file)
+# XRUFY 全栈（PostgreSQL + API + Next.js）— 在仓库根目录运行
+#
+# 首次：
+#   copy docker.env.example docker.env   （PowerShell）或手动复制后编辑密码
+#   npm run docker:up
+# 浏览器：http://localhost:3000  （端口见 docker.env 里 WEB_PORT）
+#
+# 本机 PostgreSQL 若已占用 5432，默认把库映射到主机 5433（POSTGRES_PUBLISH_PORT）。
 
 services:
   postgres:
-    image: postgres:16-alpine
+    # 默认走 DaoCloud 前缀，避免直连 registry-1.docker.io（国内/代理下易 CONNECT EOF）。需官方 Hub 时在 docker.env 设 POSTGRES_IMAGE=postgres:16-alpine
+    image: ${POSTGRES_IMAGE:-docker.m.daocloud.io/library/postgres:16-alpine}
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PUBLISH_PORT:-5433}:5432"
     environment:
-      POSTGRES_USER: xrufy
-      POSTGRES_PASSWORD: xrufy
-      POSTGRES_DB: xrufy
+      POSTGRES_USER: ${POSTGRES_USER:-xrufy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in docker.env (copy from docker.env.example)}
+      POSTGRES_DB: ${POSTGRES_DB:-xrufy}
     volumes:
       - xrufy_pg_data:/var/lib/postgresql/data
+      - ./deploy/init-db.sql:/docker-entrypoint-initdb.d/01-xrufy.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+      args:
+        BASE_NODE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-xrufy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-xrufy}
+      WEB3FORMS_ACCESS_KEY: ${WEB3FORMS_ACCESS_KEY:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      args:
+        BASE_NODE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
+        SERVER_ORIGIN: http://api:4000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - api
+
+  db-push:
+    profiles: ["migrate"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+      args:
+        BASE_NODE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
+      target: migrator
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-xrufy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-xrufy}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 开发：默认映射主机 3001/4001，避免与本机 Next、docker:up 的 3000/4000 冲突；要改端口见 docker.env 的 DEV_WEB_PORT / DEV_API_PORT
+  dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.dev
+      args:
+        BASE_NODE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - dev_node_modules:/app/node_modules
+      - /app/web/node_modules
+      - /app/server/node_modules
+      # .next 放命名卷，避免 Windows bind-mount 上 Turbopack/lockfile 权限错误
+      - dev_next:/app/web/.next
+    ports:
+      - "${DEV_WEB_PORT:-3001}:3000"
+      - "${DEV_API_PORT:-4001}:4000"
+    environment:
+      HOST: 0.0.0.0
+      # 勿设 PORT：Next 会读 PORT，与 API 的 4000 冲突；API 未设置时用代码默认 4000
+      SERVER_ORIGIN: http://127.0.0.1:4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-xrufy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-xrufy}
+      WEB3FORMS_ACCESS_KEY: ${WEB3FORMS_ACCESS_KEY:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
 
 volumes:
   xrufy_pg_data:
+  dev_node_modules:
+  dev_next:
