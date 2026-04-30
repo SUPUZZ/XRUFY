@@ -40,7 +40,20 @@ NEXT_PUBLIC_FEEDBACK_BRAND_NAME=xrufy
 
 请求体租户维度使用 `brandName + domain`，符合多品牌隔离要求。
 
-## GitHub Pages 说明
+## GitHub Pages 说明（xrufy.com）
 
-- `npm run build` 后，将 `web/out/` 作为静态文件目录发布。
-- 若使用仓库子路径部署（例如 `https://<user>.github.io/<repo>/`），建议额外配置 `basePath` / `assetPrefix` 后再构建。
+仓库已提供自动部署工作流：`.github/workflows/deploy-pages.yml`
+
+- 推送到 `main` 后会自动构建并发布 `web/out/` 到 GitHub Pages。
+- 构建环境固定为：
+  - `NEXT_PUBLIC_SITE_URL=https://xrufy.com`
+  - `NEXT_PUBLIC_FEEDBACK_API_BASE_URL=https://api.supuzz.cn`
+  - `NEXT_PUBLIC_FEEDBACK_BRAND_NAME=xrufy`
+  - `NEXT_PUBLIC_BASE_PATH=""`（根域名部署不走子路径）
+- `web/public/CNAME` 已设置为 `xrufy.com`，构建后会自动出现在发布产物根目录。
+
+### 你在 GitHub 上需要确认
+
+1. 仓库 `Settings -> Pages` 的 Source 选择 `GitHub Actions`。
+2. Custom domain 填 `xrufy.com`，并开启 HTTPS。
+3. DNS 提供商侧将 `xrufy.com` 正确解析到 GitHub Pages（A/AAAA 或 CNAME flattening）。
