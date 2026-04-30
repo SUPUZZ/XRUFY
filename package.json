@@ -1,39 +1,17 @@
 {
   "name": "xrufy",
   "private": true,
-  "description": "XRUFY monorepo: web (Next.js) + server (Node API)",
+  "description": "XRUFY frontend site (Next.js static export for GitHub Pages)",
   "workspaces": [
-    "web",
-    "server"
+    "web"
   ],
   "scripts": {
-    "predev": "node scripts/free-api-port.mjs",
-    "dev": "concurrently -n web,server -c cyan,magenta \"npm run dev -w web\" \"npm run dev -w server\"",
+    "dev": "npm run dev -w web",
     "dev:web": "npm run dev -w web",
-    "dev:server": "npm run dev -w server",
-    "build": "npm run build -w server && npm run build -w web",
-    "start": "concurrently -n web,server -c cyan,magenta \"npm run start -w web\" \"npm run start -w server\"",
+    "build": "npm run build -w web",
+    "start": "npm run start -w web",
     "start:web": "npm run start -w web",
-    "start:server": "npm run start -w server",
-    "lint": "npm run lint -w web",
-    "lint:server": "npm run lint -w server",
-    "db:push": "npm run db:push -w @xrufy/server",
-    "db:local-pg:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 start",
-    "db:local-pg:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 stop",
-    "db:local-pg:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-pg.ps1 status",
-    "server:kill": "node scripts/free-api-port.mjs --verbose",
-    "docker:env": "node scripts/ensure-docker-env.mjs",
-    "docker:up": "node scripts/ensure-docker-env.mjs && node scripts/check-docker.mjs && docker compose --env-file docker.env up -d --build",
-    "docker:down": "docker compose --env-file docker.env down",
-    "docker:logs": "docker compose --env-file docker.env logs -f web api",
-    "docker:migrate": "node scripts/check-docker.mjs && docker compose --env-file docker.env --profile migrate run --rm db-push",
-    "dev:docker": "concurrently -n web,server -c cyan,magenta \"npm run dev:docker -w web\" \"npm run dev:docker -w server\"",
-    "docker:dev": "node scripts/ensure-docker-env.mjs && node scripts/check-docker.mjs && docker compose --env-file docker.env --profile dev up -d --build dev",
-    "docker:dev:logs": "docker compose --env-file docker.env logs -f dev",
-    "docker:dev:down": "docker compose --env-file docker.env --profile dev stop dev"
+    "lint": "npm run lint -w web"
   },
-  "devDependencies": {
-    "concurrently": "^9.1.2",
-    "kill-port": "^2.0.1"
-  }
+  "devDependencies": {}
 }

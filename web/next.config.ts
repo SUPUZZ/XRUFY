@@ -1,18 +1,27 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 
-const monorepoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-
-/** Standalone API process (see /server). Next rewrites same-origin /api/forms → server. */
-const serverOrigin = process.env.SERVER_ORIGIN ?? "http://127.0.0.1:4000";
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").trim().replace(/\/+$/, "");
+function normalizeDevOrigin(input: string) {
+  const raw = input.trim();
+  if (!raw) return "";
+  const withoutProtocol = raw.replace(/^[a-z]+:\/\//i, "");
+  return withoutProtocol.split("/")[0].split(":")[0];
+}
+const allowedDevOrigins = (process.env.NEXT_ALLOWED_DEV_ORIGINS ?? "")
+  .split(",")
+  .map(normalizeDevOrigin)
+  .filter(Boolean);
 
 const nextConfig: NextConfig = {
   /** 开发模式 (`next dev`) 右下角「N」调试入口；生产构建不会出现 */
   devIndicators: false,
-  output: "standalone",
-  outputFileTracingRoot: monorepoRoot,
+  output: "export",
+  trailingSlash: true,
+  basePath,
+  assetPrefix: basePath || undefined,
+  allowedDevOrigins,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -25,18 +34,6 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/forms",
-        destination: `${serverOrigin}/api/forms`,
-      },
-      {
-        source: "/api/admin/:path*",
-        destination: `${serverOrigin}/api/admin/:path*`,
-      },
-    ];
   },
 };
 

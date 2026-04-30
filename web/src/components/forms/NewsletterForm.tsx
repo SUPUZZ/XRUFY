@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { BRAND_EMAIL } from "@/lib/constants";
+import {
+  getFeedbackApiBaseUrl,
+  getFeedbackTenantBrand,
+  getFeedbackTenantDomain,
+} from "@/lib/feedback-api";
 
-type Status = "idle" | "loading" | "success" | "error" | "fallback";
+type Status = "idle" | "loading" | "success" | "error";
 
 export function NewsletterForm({
   variant = "default",
@@ -26,30 +30,26 @@ export function NewsletterForm({
     setStatus("loading");
     setErrMsg("");
     try {
-      const res = await fetch("/api/forms", {
+      const res = await fetch(`${getFeedbackApiBaseUrl()}/api/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "subscribe", email, botcheck: trap }),
+        body: JSON.stringify({
+          brandName: getFeedbackTenantBrand(),
+          domain: getFeedbackTenantDomain(),
+          email,
+        }),
       });
 
-      let data: { ok?: boolean; code?: string; error?: string } = {};
+      let data: { status?: string; error?: string } = {};
       try {
         data = (await res.json()) as typeof data;
       } catch {
-        setErrMsg(
-          res.status === 502 || res.status === 504
-            ? "Cannot reach the form service. From the repo root run npm run dev (starts web + API), then try again."
-            : "Unexpected response from server. Please try again or email us.",
-        );
+        setErrMsg("Unexpected response from subscribe service. Please try again later.");
         setStatus("error");
         return;
       }
 
-      if (data.code === "NO_BACKEND") {
-        setStatus("fallback");
-        return;
-      }
-      if (!res.ok || !data.ok) {
+      if (!res.ok || data.status !== "ACTIVE") {
         setErrMsg(data.error ?? "Something went wrong.");
         setStatus("error");
         return;
@@ -57,7 +57,7 @@ export function NewsletterForm({
       setStatus("success");
       setEmail("");
     } catch {
-      setErrMsg("Network error—check your connection, or run both web and API (npm run dev).");
+      setErrMsg("Network error—check your connection and try again.");
       setStatus("error");
     }
   }
@@ -105,18 +105,6 @@ export function NewsletterForm({
           {status === "loading" ? "Joining…" : "Subscribe"}
         </button>
       </div>
-      {status === "fallback" && (
-        <p className={onDark ? "text-sm text-white/80" : "text-sm text-stone-600"}>
-          Online signup is not active yet—email{" "}
-          <a
-            href={`mailto:${BRAND_EMAIL}?subject=Newsletter`}
-            className={`font-semibold hover:underline ${onDark ? "text-amber-300" : "text-[#c94f03]"}`}
-          >
-            {BRAND_EMAIL}
-          </a>{" "}
-          with subject “Newsletter” and we will add you.
-        </p>
-      )}
       {status === "error" && (
         <p className={`text-sm ${onDark ? "text-red-200" : "text-red-600"}`}>{errMsg}</p>
       )}

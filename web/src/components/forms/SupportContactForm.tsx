@@ -2,9 +2,13 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { BRAND_EMAIL } from "@/lib/constants";
+import {
+  getFeedbackApiBaseUrl,
+  getFeedbackTenantBrand,
+  getFeedbackTenantDomain,
+} from "@/lib/feedback-api";
 
-type Status = "idle" | "loading" | "success" | "error" | "fallback";
+type Status = "idle" | "loading" | "success" | "error";
 
 const topics = [
   { value: "general", label: "General question" },
@@ -30,6 +34,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
   const [trap, setTrap] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errMsg, setErrMsg] = useState("");
+  const selectedTopicLabel = topics.find((t) => t.value === topic)?.label ?? topic;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,35 +45,30 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
     setStatus("loading");
     setErrMsg("");
     try {
-      const res = await fetch("/api/forms", {
+      const res = await fetch(`${getFeedbackApiBaseUrl()}/api/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: mode === "feedback" ? "feedback" : "contact",
-          name,
+          brandName: getFeedbackTenantBrand(),
+          domain: getFeedbackTenantDomain(),
           email,
-          message,
-          topic: mode === "feedback" ? "feedback" : topic,
-          botcheck: trap,
+          message:
+            mode === "contact"
+              ? `[topic] ${selectedTopicLabel}\n\n${message}`
+              : message,
+          source: mode === "feedback" ? "feedback" : "contact",
+          metadata: { name },
         }),
       });
-      let data: { ok?: boolean; code?: string; error?: string } = {};
+      let data: { id?: string; error?: string } = {};
       try {
         data = (await res.json()) as typeof data;
       } catch {
-        setErrMsg(
-          res.status === 502 || res.status === 504
-            ? "Cannot reach the form service. From the repo root run npm run dev (starts web + API), then try again."
-            : "Unexpected response from server. Please try again or email us.",
-        );
+        setErrMsg("Unexpected response from feedback service. Please try again later.");
         setStatus("error");
         return;
       }
-      if (data.code === "NO_BACKEND") {
-        setStatus("fallback");
-        return;
-      }
-      if (!res.ok || !data.ok) {
+      if (!res.ok || !data.id) {
         setErrMsg(data.error ?? "Something went wrong.");
         setStatus("error");
         return;
@@ -210,15 +210,6 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
         {status === "loading" ? "Sending…" : "Send message"}
       </button>
 
-      {status === "fallback" && (
-        <p className="text-sm text-stone-600">
-          Forms are not connected yet—please write to{" "}
-          <a href={`mailto:${BRAND_EMAIL}`} className="font-semibold text-[#c94f03] hover:underline">
-            {BRAND_EMAIL}
-          </a>
-          .
-        </p>
-      )}
       {status === "error" && <p className="text-sm text-red-600">{errMsg}</p>}
     </form>
   );
