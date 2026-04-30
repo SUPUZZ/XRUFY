@@ -8,6 +8,14 @@ import {
   SEO_KEYWORDS,
   SITE_NAME,
 } from "@/lib/seo";
+import appleTouchIcon from "@/resource/favicons/apple-touch-icon.png";
+import favicon16 from "@/resource/favicons/favicon-16x16.png";
+import favicon32 from "@/resource/favicons/favicon-32x32.png";
+import favicon48 from "@/resource/favicons/favicon-48x48.png";
+import favicon96 from "@/resource/favicons/favicon-96x96.png";
+import icon192 from "@/resource/favicons/icon-192x192.png";
+import icon512 from "@/resource/favicons/icon-512x512.png";
+import iconXrufy from "@/resource/favicons/icon_xrufy.svg";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -65,6 +73,18 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: iconXrufy.src, type: "image/svg+xml" },
+      { url: favicon16.src, sizes: "16x16", type: "image/png" },
+      { url: favicon32.src, sizes: "32x32", type: "image/png" },
+      { url: favicon48.src, sizes: "48x48", type: "image/png" },
+      { url: favicon96.src, sizes: "96x96", type: "image/png" },
+      { url: icon192.src, sizes: "192x192", type: "image/png" },
+      { url: icon512.src, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: appleTouchIcon.src, sizes: "180x180", type: "image/png" }],
   },
   category: "toys",
 };
