@@ -56,7 +56,8 @@ export const metadata: Metadata = {
     url: "/",
     siteName: SITE_NAME,
     title: HOME_TITLE,
-    description: HOME_DESCRIPTION,
+    description:
+      "XRUFY 100+ piece interlocking building blocks for preschoolers ages 3-8. STEAM educational toys with storage bin and figures — available on Amazon USA with fast shipping to the United States and Canada.",
     images: [
       {
         url: defaultOgImage,
