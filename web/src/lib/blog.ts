@@ -12,6 +12,8 @@ export type PostFrontmatter = {
   /** Short alt text for the cover (defaults to title if omitted). */
   coverAlt?: string;
   author?: string;
+  /** ISO date string for the last modification (optional, defaults to `date`). */
+  lastModified?: string;
 };
 
 export type PostSummary = PostFrontmatter & { slug: string };

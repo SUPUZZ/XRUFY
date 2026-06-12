@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { FaqJsonLd } from "@/components/seo/FaqJsonLd";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { SupportContactForm } from "@/components/forms/SupportContactForm";
 import { AMAZON_PRODUCT_URL, BRAND_EMAIL } from "@/lib/constants";
-import { faqItems } from "@/lib/faq";
+import { faqItems, faqSchemaItems } from "@/lib/faq";
 
 export const metadata: Metadata = {
   title: "Support",
@@ -24,6 +25,7 @@ function FormFallback() {
 export default function SupportPage() {
   return (
     <>
+      <FaqJsonLd faqs={faqSchemaItems} />
       <Header />
       <main className="flex-1">
         {/* 1. 轻量首屏：把人带到「留言」 */}

@@ -26,6 +26,9 @@ export function Footer() {
               {BRAND_EMAIL}
             </a>
           </p>
+          <p className="mt-2 max-w-xs text-xs text-stone-400">
+            Preschool construction toys for families in the United States and Canada. Order on Amazon with fast, reliable shipping.
+          </p>
         </div>
 
         <div>
@@ -89,6 +92,16 @@ export function Footer() {
               </a>
             </li>
             <li>
+              <a
+                href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GKM69DUUYKQWKWX7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-stone-700 hover:text-[#e85d04]"
+              >
+                Returns &amp; shipping
+              </a>
+            </li>
+            <li>
               <Link href="/support#newsletter" className="text-stone-700 hover:text-[#e85d04]">
                 Email newsletter
               </Link>
@@ -104,7 +117,7 @@ export function Footer() {
               </Link>
             </li>
           </ul>
-          <p className="mt-6 text-xs text-stone-500">© {new Date().getFullYear()} XRUFY. All rights reserved.</p>
+          <p className="mt-6 text-xs text-stone-500">&copy; {new Date().getFullYear()} XRUFY. All rights reserved.</p>
         </div>
       </div>
     </footer>

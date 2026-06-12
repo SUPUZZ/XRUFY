@@ -1,0 +1,79 @@
+const DEFAULT_API_BASE_URL = "https://api.supuzz.cn";
+const DEFAULT_BRAND_NAME = "xrufy";
+
+function trimTrailingSlash(input: string) {
+  return input.endsWith("/") ? input.slice(0, -1) : input;
+}
+
+export function getPageviewApiBaseUrl() {
+  return trimTrailingSlash(process.env.NEXT_PUBLIC_PAGEVIEW_API_BASE_URL ?? DEFAULT_API_BASE_URL);
+}
+
+export function getPageviewTenantDomain() {
+  const fromEnv = process.env.NEXT_PUBLIC_PAGEVIEW_DOMAIN?.trim().toLowerCase();
+  if (fromEnv) return fromEnv;
+  if (typeof window !== "undefined" && window.location.hostname) {
+    return window.location.hostname.toLowerCase();
+  }
+  return "localhost";
+}
+
+export function getPageviewTenantBrand() {
+  return (process.env.NEXT_PUBLIC_PAGEVIEW_BRAND_NAME ?? DEFAULT_BRAND_NAME).trim().toLowerCase();
+}
+
+export interface PageViewPayload {
+  brandName: string;
+  domain: string;
+  pageUrl: string;
+  referrer?: string;
+  userAgent?: string;
+  ipAddress?: string;
+}
+
+export interface PageViewResponse {
+  id: string;
+  createdAt: string;
+  location?: {
+    country: string;
+    countryCode: string;
+    city: string;
+  };
+}
+
+export async function reportPageView(): Promise<PageViewResponse | null> {
+  try {
+    const payload: PageViewPayload = {
+      brandName: getPageviewTenantBrand(),
+      domain: getPageviewTenantDomain(),
+      pageUrl: typeof window !== "undefined" ? window.location.pathname + window.location.search : "/",
+    };
+
+    if (typeof document !== "undefined" && document.referrer) {
+      payload.referrer = document.referrer;
+    }
+
+    if (typeof navigator !== "undefined") {
+      payload.userAgent = navigator.userAgent;
+    }
+
+    const res = await fetch(`${getPageviewApiBaseUrl()}/api/pageview`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      console.warn("[pageview] Non-OK response:", res.status);
+      return null;
+    }
+
+    return (await res.json()) as PageViewResponse;
+  } catch (err) {
+    // Silently fail — pageview tracking must never break the site
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[pageview] Failed to report:", err);
+    }
+    return null;
+  }
+}

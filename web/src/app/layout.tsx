@@ -16,6 +16,7 @@ import favicon96 from "@/resource/favicons/favicon-96x96.png";
 import icon192 from "@/resource/favicons/icon-192x192.png";
 import icon512 from "@/resource/favicons/icon-512x512.png";
 import iconXrufy from "@/resource/favicons/icon_xrufy.svg";
+import { PageViewReporter } from "@/components/PageViewReporter";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -55,7 +56,8 @@ export const metadata: Metadata = {
     url: "/",
     siteName: SITE_NAME,
     title: HOME_TITLE,
-    description: HOME_DESCRIPTION,
+    description:
+      "XRUFY 100+ piece interlocking building blocks for preschoolers ages 3-8. STEAM educational toys with storage bin and figures — available on Amazon USA with fast shipping to the United States and Canada.",
     images: [
       {
         url: defaultOgImage,
@@ -99,6 +101,7 @@ export default function RootLayout({
       <body className="min-h-full bg-[#f7f7f5] font-[family-name:var(--font-dm-sans)] text-stone-900 antialiased">
         {/* Flex lives here—not on <body>—so Next.js devtools' <nextjs-portal> is not a flex sibling (next.js#70675). */}
         <div className="flex min-h-full flex-col">{children}</div>
+        <PageViewReporter />
       </body>
     </html>
   );
