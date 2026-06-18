@@ -3,7 +3,7 @@ title: "Building fine motor skills, one block at a time"
 date: "2026-06-12"
 description: "How construction play strengthens little hands, sharpens focus, and creates natural moments for parent-child bonding—no screens required."
 author: "XRUFY Team"
-cover: "/images/blog/life-scene.png"
+cover: "/images/blog/life-scene.webp"
 coverAlt: "Warm family living space with XRUFY building blocks ready for creative play"
 ---
 
@@ -11,7 +11,7 @@ Every time a child picks up a block, lines up a piece, or presses two bricks tog
 
 The beauty of open-ended building toys like XRUFY is that children practice these movements **hundreds of times during a single play session**, without ever feeling like they are doing "exercises." Play is the workout; the skills arrive as a side effect.
 
-![Child's hands carefully connecting colorful building blocks during fine motor play](/images/blog/fine-motor-skills.png)
+![Child's hands carefully connecting colorful building blocks during fine motor play](/images/blog/fine-motor-skills.webp)
 
 ### Why fine motor skills matter more than you think
 
@@ -33,7 +33,7 @@ Block play naturally strengthens all of these. When a child picks up a small XRU
 
 Building blocks are not just for solo play. When a parent sits alongside a child during a build, something remarkable happens: the child **narrates their thinking**. "This goes here because it is wider." "I need a blue one next." That running commentary is the foundation of executive function—planning, sequencing, and self-regulation.
 
-![Parent and child sharing a joyful building moment on the floor](/images/blog/parent-child.png)
+![Parent and child sharing a joyful building moment on the floor](/images/blog/parent-child.webp)
 
 **Three ways to turn block play into connection time:**
 
@@ -45,7 +45,7 @@ Building blocks are not just for solo play. When a parent sits alongside a child
 
 If you are new to open-ended block play, you do not need a curriculum or a lesson plan. Children are natural explorers—your role is to **set the stage and step back**.
 
-![Step-by-step guide showing how to set up a productive play environment at home](/images/blog/simple-guide.png)
+![Step-by-step guide showing how to set up a productive play environment at home](/images/blog/simple-guide.webp)
 
 **The five-minute setup:**
 

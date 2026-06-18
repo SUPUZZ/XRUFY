@@ -7,9 +7,10 @@ import { AMAZON_PRODUCT_URL } from "@/lib/constants";
 
 /** Top bar = site-wide routes only. In-page jumps stay in the footer / hero CTAs — not here. */
 const mainNav = [
-  { href: "/about", label: "About", match: (p: string) => p === "/about" },
+  { href: "/", label: "Home", match: (p: string) => p === "/" },
   { href: "/blog", label: "Blog", match: (p: string) => p.startsWith("/blog") },
   { href: "/support", label: "Support", match: (p: string) => p.startsWith("/support") },
+  { href: "/about", label: "About", match: (p: string) => p === "/about" },
 ] as const;
 
 export function Header() {
