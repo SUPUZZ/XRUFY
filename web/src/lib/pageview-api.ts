@@ -42,6 +42,12 @@ export interface PageViewResponse {
 }
 
 export async function reportPageView(): Promise<PageViewResponse | null> {
+  // Skip tracking on localhost development
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1") return null;
+  }
+
   try {
     const payload: PageViewPayload = {
       brandName: getPageviewTenantBrand(),
