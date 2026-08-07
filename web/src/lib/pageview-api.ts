@@ -1,5 +1,6 @@
 const DEFAULT_API_BASE_URL = "https://api.supuzz.cn";
 const DEFAULT_BRAND_NAME = "xrufy";
+const VISITOR_ID_STORAGE_KEY = "_xrufy_vid";
 
 function trimTrailingSlash(input: string) {
   return input.endsWith("/") ? input.slice(0, -1) : input;
@@ -22,6 +23,20 @@ export function getPageviewTenantBrand() {
   return (process.env.NEXT_PUBLIC_PAGEVIEW_BRAND_NAME ?? DEFAULT_BRAND_NAME).trim().toLowerCase();
 }
 
+function getVisitorId() {
+  try {
+    let visitorId = localStorage.getItem(VISITOR_ID_STORAGE_KEY);
+    if (!visitorId) {
+      visitorId = crypto.randomUUID();
+      localStorage.setItem(VISITOR_ID_STORAGE_KEY, visitorId);
+    }
+    return visitorId;
+  } catch {
+    // Some private browsing contexts block localStorage access.
+    return crypto.randomUUID();
+  }
+}
+
 export interface PageViewPayload {
   brandName: string;
   domain: string;
@@ -29,6 +44,7 @@ export interface PageViewPayload {
   referrer?: string;
   userAgent?: string;
   ipAddress?: string;
+  visitorId: string;
 }
 
 export interface PageViewResponse {
@@ -47,6 +63,7 @@ export async function reportPageView(): Promise<PageViewResponse | null> {
       brandName: getPageviewTenantBrand(),
       domain: getPageviewTenantDomain(),
       pageUrl: typeof window !== "undefined" ? window.location.pathname + window.location.search : "/",
+      visitorId: getVisitorId(),
     };
 
     if (typeof document !== "undefined" && document.referrer) {
@@ -61,6 +78,7 @@ export async function reportPageView(): Promise<PageViewResponse | null> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      credentials: "omit",
     });
 
     if (!res.ok) {
@@ -75,5 +93,21 @@ export async function reportPageView(): Promise<PageViewResponse | null> {
       console.warn("[pageview] Failed to report:", err);
     }
     return null;
+  }
+}
+
+export async function reportPageViewDuration(pageViewId: string, duration: number): Promise<boolean> {
+  try {
+    const res = await fetch(`${getPageviewApiBaseUrl()}/api/pageview/${pageViewId}/duration`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ duration: Math.max(1, Math.round(duration)) }),
+      credentials: "omit",
+      keepalive: true,
+    });
+
+    return res.ok;
+  } catch {
+    return false;
   }
 }

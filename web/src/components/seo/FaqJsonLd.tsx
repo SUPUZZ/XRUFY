@@ -1,5 +1,3 @@
-import { getSiteUrl, SITE_NAME } from "@/lib/seo";
-
 export interface FaqItemData {
   question: string;
   answer: string;
@@ -15,8 +13,6 @@ export interface FaqJsonLdProps {
  * and may surface these Q&As directly in generative responses.
  */
 export function FaqJsonLd({ faqs }: FaqJsonLdProps) {
-  const siteUrl = getSiteUrl();
-
   const data = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
