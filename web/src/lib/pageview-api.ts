@@ -102,17 +102,17 @@ export async function reportPageView(): Promise<PageViewResponse | null> {
   }
 }
 
-export async function reportPageViewDuration(pageViewId: string, duration: number): Promise<boolean> {
+export function reportPageViewDuration(pageViewId: string, duration: number): boolean {
+  // 上限 86400s 与服务端 durationSchema 的 max 对齐，避免超长标签页被 400 拒绝
+  const clamped = Math.min(86400, Math.max(1, Math.round(duration)));
   try {
-    const res = await fetch(`${getPageviewApiBaseUrl()}/api/pageview/${pageViewId}/duration`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ duration: Math.max(1, Math.round(duration)) }),
-      credentials: "omit",
-      keepalive: true,
-    });
-
-    return res.ok;
+    // 用 sendBeacon（POST + text/plain）而非 fetch(PATCH, keepalive)：
+    // sendBeacon 是 CORS 简单请求、无需预检，页面卸载/移动端关闭标签页时更可靠。
+    // 后端已提供 POST /api/pageview/:id/duration 并解析 text/plain body。
+    return navigator.sendBeacon(
+      `${getPageviewApiBaseUrl()}/api/pageview/${pageViewId}/duration`,
+      JSON.stringify({ duration: clamped })
+    );
   } catch {
     return false;
   }

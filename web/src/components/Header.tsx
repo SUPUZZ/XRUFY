@@ -94,7 +94,6 @@ export function Header() {
                   className={`block rounded-xl px-4 py-3 text-base font-semibold ${
                     item.match(pathname) ? "bg-stone-900 text-white" : "text-stone-800 hover:bg-stone-200/50"
                   }`}
-                  onClick={close}
                 >
                   {item.label}
                 </Link>
