@@ -32,7 +32,7 @@ const dmSans = DM_Sans({
 });
 
 const siteUrl = getSiteUrl();
-const defaultOgImage = GALLERY_IMAGES[0]?.src ?? `${siteUrl}/family-scene-north-american.png`;
+const defaultOgImage = GALLERY_IMAGES[0]?.src ?? `${siteUrl}/family-scene-north-american.webp`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

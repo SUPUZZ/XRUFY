@@ -3,10 +3,13 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 
-const IMAGES_DIR = path.resolve("public/images");
+// 扫描整个 public 目录（含根目录与 images/），避免遗漏 hero 等根级图片
+const PUBLIC_DIR = path.resolve("public");
 const SRC_DIR = path.resolve("src");
 const CONTENT_DIR = path.resolve("content");
-const WEBP_QUALITY = 85;
+const WEBP_QUALITY = Number(process.env.WEBP_QUALITY ?? 85);
+// 超过此宽度的图片等比缩小（只压缩真正过大的图，hero 主图等常规尺寸不受影响）
+const MAX_WIDTH = Number(process.env.MAX_WIDTH ?? 1600);
 
 const SUPPORTED = new Set([".png", ".jpg", ".jpeg", ".tiff"]);
 const SOURCE_EXTS = new Set([".tsx", ".ts", ".jsx", ".js", ".md", ".mdx"]);
@@ -27,13 +30,10 @@ function collect(dir, exts) {
   return files;
 }
 
-/** Replace old-ext references with .webp only for paths under public/images/ */
+/** 将旧扩展名引用替换为 .webp（相对 public 目录的路径） */
 function replaceImageRefs(content, relativePath) {
   const oldExt = path.extname(relativePath);
   const webpPath = relativePath.replace(oldExt, ".webp");
-
-  // Match the image path in various quoting contexts: "…", '…', `…`, or markdown (…)
-  // This regex replaces only this specific image path's extension
   const escaped = relativePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(escaped, "g");
   return content.replace(pattern, webpPath);
@@ -42,42 +42,55 @@ function replaceImageRefs(content, relativePath) {
 /* ─── main ────────────────────────────────────────────────── */
 
 async function main() {
-  const imageFiles = collect(IMAGES_DIR, SUPPORTED);
+  const imageFiles = collect(PUBLIC_DIR, SUPPORTED);
 
   if (imageFiles.length === 0) {
     console.log("✅ No non-WebP images found.");
     return;
   }
 
-  console.log(`🔍 Found ${imageFiles.length} image(s) to convert:\n`);
+  console.log(`🔍 Found ${imageFiles.length} image(s) to process:\n`);
 
-  /* 1. Convert images */
+  /* 1. 转换并压缩图片 */
   const converted = [];
   for (const file of imageFiles) {
     const parsed = path.parse(file);
     const webpPath = path.join(parsed.dir, `${parsed.name}.webp`);
 
+    // 已有更新版本的 webp 则跳过
     try {
       const srcStat = statSync(file);
       try {
         const webpStat = statSync(webpPath);
         if (webpStat.mtimeMs >= srcStat.mtimeMs) {
-          console.log(`  ⏭️  SKIP  ${path.relative(IMAGES_DIR, webpPath)} (up-to-date)`);
+          console.log(`  ⏭️  SKIP  ${path.relative(PUBLIC_DIR, webpPath)} (up-to-date)`);
           continue;
         }
       } catch {
-        /* webp doesn't exist → convert */
+        /* webp 不存在 → 转换 */
       }
     } catch {
       continue;
     }
 
     const buf = await readFile(file);
-    const webpBuf = await sharp(buf).webp({ quality: WEBP_QUALITY }).toBuffer();
+    const metadata = await sharp(buf).metadata();
+
+    let pipeline = sharp(buf);
+    let resized = false;
+    if ((metadata.width ?? 0) > MAX_WIDTH) {
+      pipeline = pipeline.resize({ width: MAX_WIDTH, withoutEnlargement: true });
+      resized = true;
+    }
+
+    const webpBuf = await pipeline.webp({ quality: WEBP_QUALITY }).toBuffer();
     await writeFile(webpPath, webpBuf);
 
     const saved = ((1 - webpBuf.length / buf.length) * 100).toFixed(1);
-    console.log(`  ✅  ${path.relative(IMAGES_DIR, file)} → .webp (${saved}% smaller)`);
+    const sizeNote = resized ? ` (${metadata.width}px → ${MAX_WIDTH}px)` : "";
+    console.log(
+      `  ✅  ${path.relative(PUBLIC_DIR, file)} → .webp${sizeNote} (${saved}% smaller)`,
+    );
     converted.push(file);
   }
 
@@ -87,9 +100,9 @@ async function main() {
     console.log(`\n🎉 ${converted.length} image(s) converted.`);
   }
 
-  /* 2. Replace paths in source files */
+  /* 2. 替换源码/内容中的引用路径 */
   const allConverted = converted.length > 0 ? converted : imageFiles;
-  const relativePaths = allConverted.map((f) => path.relative(IMAGES_DIR, f));
+  const relativePaths = allConverted.map((f) => path.relative(PUBLIC_DIR, f));
 
   const sourceDirs = [SRC_DIR, CONTENT_DIR].filter((d) => {
     try {
@@ -111,21 +124,18 @@ async function main() {
     return;
   }
 
-  let replacedCount = 0;
   let fileReplacements = 0;
 
   for (const sf of sourceFiles) {
-    let content = await readFile(sf, "utf-8");
-    const original = content;
+    const original = await readFile(sf, "utf-8");
+    let content = original;
     for (const rel of relativePaths) {
       content = replaceImageRefs(content, rel);
     }
     if (content !== original) {
       await writeFile(sf, content);
-      const relFile = path.relative(process.cwd(), sf);
-      console.log(`  📝  ${relFile}`);
+      console.log(`  📝  ${path.relative(process.cwd(), sf)}`);
       fileReplacements++;
-      replacedCount++;
     }
   }
 

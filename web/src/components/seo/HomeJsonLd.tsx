@@ -18,7 +18,7 @@ export function HomeJsonLd() {
       url: siteUrl,
       description: HOME_DESCRIPTION,
       email: "xrufy_brand@163.com",
-      logo: productImages[0] ?? `${siteUrl}/family-scene-north-american.png`,
+      logo: productImages[0] ?? `${siteUrl}/family-scene-north-american.webp`,
       slogan: "Interlocking construction toys for preschool creators.",
       foundingDate: "2025",
       areaServed: [

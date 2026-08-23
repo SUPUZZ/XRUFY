@@ -7,7 +7,7 @@ export const BRAND_TAGLINE = "Interlocking construction toys for preschool creat
 
 /** Hero 右侧主视觉 */
 export const HERO_FEATURE_IMAGE = {
-  src: "/family-scene-north-american.png",
+  src: "/family-scene-north-american.webp",
   alt: "North American family with young children—warm, everyday home scene",
 } as const;
 
