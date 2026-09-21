@@ -1,3 +1,4 @@
+import { languageAlternates } from "@/lib/localization";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
@@ -6,6 +7,7 @@ import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { AMAZON_PRODUCT_URL, BRAND_EMAIL } from "@/lib/constants";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about/", languages: languageAlternates("/about/") },
   title: "About",
   description:
     "XRUFY is a preschool-first construction toy brand based in the United States. Open-ended interlocking building blocks for ages 3-8, designed for STEAM learning and sold on Amazon.com with fast shipping across North America.",

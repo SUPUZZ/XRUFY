@@ -20,9 +20,11 @@ const topics = [
 type FormProps = {
   /** Links the form to page intro copy for screen readers. */
   ariaDescribedBy?: string;
+  labels?: string[];
 };
 
-export function SupportContactForm({ ariaDescribedBy }: FormProps) {
+export function SupportContactForm({ ariaDescribedBy, labels }: FormProps) {
+  const t = (index: number, fallback: string) => labels?.[index] ?? fallback;
   const searchParams = useSearchParams();
   const defaultMode = searchParams.get("mode") === "feedback" ? "feedback" : "contact";
 
@@ -64,19 +66,19 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
       try {
         data = (await res.json()) as typeof data;
       } catch {
-        setErrMsg("Unexpected response from feedback service. Please try again later.");
+        setErrMsg(t(18, "Unexpected response from feedback service. Please try again later."));
         setStatus("error");
         return;
       }
       if (!res.ok || !data.id) {
-        setErrMsg(data.error ?? "Something went wrong.");
+        setErrMsg(labels ? t(19, "Something went wrong.") : data.error ?? t(19, "Something went wrong."));
         setStatus("error");
         return;
       }
       setStatus("success");
       setMessage("");
     } catch {
-      setErrMsg("Network error. Try again or email us directly.");
+      setErrMsg(t(20, "Network error. Try again or email us directly."));
       setStatus("error");
     }
   }
@@ -84,11 +86,8 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
   if (status === "success") {
     return (
       <div className="rounded-2xl border border-teal-200 bg-teal-50 px-4 py-5 text-sm leading-relaxed text-teal-950">
-        <p className="font-semibold">Thanks—that’s in our inbox.</p>
-        <p className="mt-2 text-teal-900/90">
-          We read real messages from families carefully. If you asked something that needs a reply, we’ll get back when
-          we can (often a few business days).
-        </p>
+        <p className="font-semibold">{t(15, "Thanks—that’s in our inbox.")}</p>
+        <p className="mt-2 text-teal-900/90">{t(16, "We read real messages from families carefully. If you asked something that needs a reply, we’ll get back when we can (often a few business days).")}</p>
       </div>
     );
   }
@@ -99,7 +98,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
       className="relative space-y-4"
       aria-describedby={ariaDescribedBy}
     >
-      <p className="text-xs text-stone-500">Switch any time—both go to the same caring team.</p>
+      <p className="text-xs text-stone-500">{t(17, "Switch any time—both go to the same caring team.")}</p>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -109,9 +108,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
               ? "bg-stone-900 text-white"
               : "bg-stone-100 text-stone-600 hover:bg-stone-200"
           }`}
-        >
-          Contact
-        </button>
+        >{t(0, "Contact")}</button>
         <button
           type="button"
           onClick={() => setMode("feedback")}
@@ -120,9 +117,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
               ? "bg-stone-900 text-white"
               : "bg-stone-100 text-stone-600 hover:bg-stone-200"
           }`}
-        >
-          Feedback
-        </button>
+        >{t(1, "Feedback")}</button>
       </div>
 
       <input
@@ -136,18 +131,16 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
 
       {mode === "contact" && (
         <div>
-          <label htmlFor="topic" className="mb-1.5 block text-sm font-medium text-stone-700">
-            Topic
-          </label>
+          <label htmlFor="topic" className="mb-1.5 block text-sm font-medium text-stone-700">{t(2, "Topic")}</label>
           <select
             id="topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#e85d04] focus:ring-2 focus:ring-[#e85d04]/25"
           >
-            {topics.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {topics.map((topicItem, index) => (
+              <option key={topicItem.value} value={topicItem.value}>
+                {t(11 + index, topicItem.label)}
               </option>
             ))}
           </select>
@@ -155,9 +148,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
       )}
 
       <div>
-        <label htmlFor="c-name" className="mb-1.5 block text-sm font-medium text-stone-700">
-          Name
-        </label>
+        <label htmlFor="c-name" className="mb-1.5 block text-sm font-medium text-stone-700">{t(3, "Name")}</label>
         <input
           id="c-name"
           required
@@ -169,9 +160,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
       </div>
 
       <div>
-        <label htmlFor="c-email" className="mb-1.5 block text-sm font-medium text-stone-700">
-          Email
-        </label>
+        <label htmlFor="c-email" className="mb-1.5 block text-sm font-medium text-stone-700">{t(4, "Email")}</label>
         <input
           id="c-email"
           type="email"
@@ -185,7 +174,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
 
       <div>
         <label htmlFor="c-msg" className="mb-1.5 block text-sm font-medium text-stone-700">
-          {mode === "feedback" ? "What should we know?" : "How can we help?"}
+          {mode === "feedback" ? t(6, "What should we know?") : t(5, "How can we help?")}
         </label>
         <textarea
           id="c-msg"
@@ -195,8 +184,8 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
           onChange={(e) => setMessage(e.target.value)}
           placeholder={
             mode === "feedback"
-              ? "Ideas for new colors, durability notes, packaging—anything that helps families play better."
-              : "Include your Amazon order ID if this is about a purchase."
+              ? t(8, "Ideas for new colors, durability notes, packaging—anything that helps families play better.")
+              : t(7, "Include your Amazon order ID if this is about a purchase.")
           }
           className="w-full resize-y rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 outline-none focus:border-[#e85d04] focus:ring-2 focus:ring-[#e85d04]/25"
         />
@@ -207,7 +196,7 @@ export function SupportContactForm({ ariaDescribedBy }: FormProps) {
         disabled={status === "loading"}
         className="w-full rounded-full bg-[#e85d04] py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c94f03] disabled:opacity-60 sm:w-auto sm:px-10"
       >
-        {status === "loading" ? "Sending…" : "Send message"}
+        {status === "loading" ? t(9, "Sending…") : t(10, "Send message")}
       </button>
 
       {status === "error" && <p className="text-sm text-red-600">{errMsg}</p>}

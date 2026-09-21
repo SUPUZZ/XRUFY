@@ -1,3 +1,4 @@
+import { languageAlternates } from "@/lib/localization";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
@@ -5,6 +6,7 @@ import { Header } from "@/components/Header";
 import { BRAND_EMAIL } from "@/lib/constants";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms/", languages: languageAlternates("/terms/") },
   title: "Terms of Use",
   description: "Rules for using the XRUFY website.",
 };

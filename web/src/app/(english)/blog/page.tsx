@@ -1,3 +1,4 @@
+import { languageAlternates } from "@/lib/localization";
 import type { Metadata } from "next";
 import { BlogIndexClient } from "@/components/BlogIndexClient";
 import { Footer } from "@/components/Footer";
@@ -5,6 +6,7 @@ import { Header } from "@/components/Header";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/blog/", languages: languageAlternates("/blog/") },
   title: "Journal",
   description: "Articles on open-ended play, STEAM at home, and real-life routines with construction toys.",
 };

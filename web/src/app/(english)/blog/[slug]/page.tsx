@@ -1,3 +1,4 @@
+import { languageAlternates } from "@/lib/localization";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +7,8 @@ import { BlogMarkdown } from "@/components/BlogMarkdown";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { BlogJsonLd } from "@/components/seo/BlogJsonLd";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { getSiteUrl } from "@/lib/seo";
 import { getAllPostSlugs, getPostBySlug } from "@/lib/blog";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -18,14 +21,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return { title: "Not found" };
-  const og = post.meta.cover
-    ? { images: [{ url: post.meta.cover, alt: post.meta.coverAlt ?? post.meta.title }] }
+  const postUrl = `${getSiteUrl()}/blog/${slug}/`;
+  const images = post.meta.cover
+    ? [{ url: post.meta.cover, alt: post.meta.coverAlt ?? post.meta.title }]
     : undefined;
   return {
     title: post.meta.title,
     description: post.meta.description,
-    openGraph: og,
-    twitter: og ? { card: "summary_large_image", images: [post.meta.cover!] } : undefined,
+    keywords: post.meta.keywords,
+    alternates: { canonical: postUrl, languages: languageAlternates(`/blog/${slug}/`) },
+    openGraph: {
+      type: "article",
+      url: postUrl,
+      siteName: "XRUFY",
+      locale: "en_US",
+      title: post.meta.title,
+      description: post.meta.description,
+      publishedTime: post.meta.date,
+      modifiedTime: post.meta.lastModified ?? post.meta.date,
+      images,
+    },
+    twitter: {
+      card: images ? "summary_large_image" : "summary",
+      title: post.meta.title,
+      description: post.meta.description,
+      images,
+    },
   };
 }
 
@@ -69,6 +90,11 @@ export default async function BlogPostPage({ params }: Props) {
         authorName={meta.author}
         slug={slug}
       />
+      <BreadcrumbJsonLd items={[
+        { name: "Home", href: "/" },
+        { name: "Journal", href: "/blog/" },
+        { name: meta.title, href: `/blog/${slug}/` },
+      ]} />
       <Header />
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">

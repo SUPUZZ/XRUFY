@@ -12,10 +12,13 @@ type Status = "idle" | "loading" | "success" | "error";
 export function NewsletterForm({
   variant = "default",
   onDark = false,
+  labels,
 }: {
   variant?: "default" | "compact";
   onDark?: boolean;
+  labels?: string[];
 }) {
+  const t = (index: number, fallback: string) => labels?.[index] ?? fallback;
   const [email, setEmail] = useState("");
   const [trap, setTrap] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -44,29 +47,27 @@ export function NewsletterForm({
       try {
         data = (await res.json()) as typeof data;
       } catch {
-        setErrMsg("Unexpected response from subscribe service. Please try again later.");
+        setErrMsg(t(18, "Unexpected response from subscribe service. Please try again later."));
         setStatus("error");
         return;
       }
 
       if (!res.ok || data.status !== "ACTIVE") {
-        setErrMsg(data.error ?? "Something went wrong.");
+        setErrMsg(labels ? t(19, "Something went wrong.") : data.error ?? t(19, "Something went wrong."));
         setStatus("error");
         return;
       }
       setStatus("success");
       setEmail("");
     } catch {
-      setErrMsg("Network error—check your connection and try again.");
+      setErrMsg(t(20, "Network error—check your connection and try again."));
       setStatus("error");
     }
   }
 
   if (status === "success") {
     return (
-      <p className="rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">
-        Thanks—you are on the list. Watch your inbox for play ideas and product news.
-      </p>
+      <p className="rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">{t(24, "Thanks—you are on the list. Watch your inbox for play ideas and product news.")}</p>
     );
   }
 
@@ -76,9 +77,7 @@ export function NewsletterForm({
       className={`relative ${variant === "compact" ? "space-y-2" : "space-y-3"}`}
     >
       <div className={`flex flex-col gap-2 sm:flex-row ${variant === "compact" ? "sm:gap-2" : "sm:gap-3"}`}>
-        <label htmlFor="newsletter-email" className="sr-only">
-          Email for updates
-        </label>
+        <label htmlFor="newsletter-email" className="sr-only">{t(21, "Email for updates")}</label>
         <input
           aria-hidden
           tabIndex={-1}
@@ -102,15 +101,13 @@ export function NewsletterForm({
           disabled={status === "loading"}
           className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-[#e85d04] px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c94f03] disabled:opacity-60"
         >
-          {status === "loading" ? "Joining…" : "Subscribe"}
+          {status === "loading" ? t(22, "Joining…") : t(23, "Subscribe")}
         </button>
       </div>
       {status === "error" && (
         <p className={`text-sm ${onDark ? "text-red-200" : "text-red-600"}`}>{errMsg}</p>
       )}
-      <p className={`text-xs ${onDark ? "text-white/55" : "text-stone-500"}`}>
-        Only if you want them—no spam. Unsubscribe anytime by replying to any email.
-      </p>
+      <p className={`text-xs ${onDark ? "text-white/55" : "text-stone-500"}`}>{t(25, "Only if you want them—no spam. Unsubscribe anytime by replying to any email.")}</p>
     </form>
   );
 }

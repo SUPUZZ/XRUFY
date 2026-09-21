@@ -14,6 +14,7 @@ export type PostFrontmatter = {
   author?: string;
   /** ISO date string for the last modification (optional, defaults to `date`). */
   lastModified?: string;
+  keywords?: string[];
 };
 
 export type PostSummary = PostFrontmatter & { slug: string };

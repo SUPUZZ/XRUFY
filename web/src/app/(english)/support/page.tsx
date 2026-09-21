@@ -1,3 +1,4 @@
+import { languageAlternates } from "@/lib/localization";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FaqAccordion } from "@/components/FaqAccordion";
@@ -10,6 +11,7 @@ import { AMAZON_PRODUCT_URL, BRAND_EMAIL } from "@/lib/constants";
 import { faqItems, faqSchemaItems } from "@/lib/faq";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/support/", languages: languageAlternates("/support/") },
   title: "Support",
   description: "Message XRUFY, read quick answers, or optionally join the email list.",
 };

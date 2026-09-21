@@ -38,7 +38,7 @@ export function BlogJsonLd({
     datePublished,
     dateModified: dateModified || datePublished,
     author: {
-      "@type": "Person",
+      "@type": authorName === "XRUFY Team" ? "Organization" : "Person",
       name: authorName,
       url: siteUrl,
     },
@@ -61,7 +61,7 @@ export function BlogJsonLd({
       ? {
           image: {
             "@type": "ImageObject",
-            url: coverImage,
+            url: new URL(coverImage, `${siteUrl}/`).toString(),
             caption: coverAlt ?? title,
           },
         }

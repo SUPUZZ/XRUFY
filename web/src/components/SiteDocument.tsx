@@ -17,7 +17,7 @@ import icon192 from "@/resource/favicons/icon-192x192.png";
 import icon512 from "@/resource/favicons/icon-512x512.png";
 import iconXrufy from "@/resource/favicons/icon_xrufy.svg";
 import { PageViewReporter } from "@/components/PageViewReporter";
-import "./globals.css";
+import "@/app/globals.css";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -34,7 +34,7 @@ const dmSans = DM_Sans({
 const siteUrl = getSiteUrl();
 const defaultOgImage = GALLERY_IMAGES[0]?.src ?? `${siteUrl}/family-scene-north-american.webp`;
 
-export const metadata: Metadata = {
+export const baseMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: HOME_TITLE,
@@ -91,13 +91,15 @@ export const metadata: Metadata = {
   category: "toys",
 };
 
-export default function RootLayout({
+export function SiteDocument({
   children,
+  locale = "en",
 }: Readonly<{
   children: React.ReactNode;
+  locale?: string;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${dmSans.variable} h-full scroll-smooth`}>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${outfit.variable} ${dmSans.variable} h-full scroll-smooth`}>
       <body className="min-h-full bg-[#f7f7f5] font-[family-name:var(--font-dm-sans)] text-stone-900 antialiased">
         {/* Flex lives here—not on <body>—so Next.js devtools' <nextjs-portal> is not a flex sibling (next.js#70675). */}
         <div className="flex min-h-full flex-col">{children}</div>
