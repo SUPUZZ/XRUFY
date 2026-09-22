@@ -11,7 +11,8 @@ import { AMAZON_PRODUCT_URL, BRAND_EMAIL, GALLERY_IMAGES } from "@/lib/constants
 import { languageAlternates, localePath, ogLocales } from "@/lib/localization";
 import { getDictionary, translatedSlugs, type TranslatedLocale } from "@/lib/translations";
 
-const postCovers = ["/images/blog/multidimensional-building-blocks.webp", "/images/blog/life-scene.webp"];
+const postCovers = ["/images/blog/multidimensional-building-blocks.webp", "/images/blog/life-scene.webp", "/images/blog/holiday-building-play.webp"];
+const postDates = ["2026-09-21", "2026-06-12", "2026-09-22"];
 function contentFor(locale: TranslatedLocale, path: string) {
   const d = getDictionary(locale);
   const index = translatedSlugs.findIndex(slug => path === `/blog/${slug}/`);
@@ -25,11 +26,12 @@ export function localizedMetadata(locale: TranslatedLocale, path: string): Metad
   const page = contentFor(locale, path);
   const url = `https://xrufy.com${localePath(locale, path)}`;
   const image = page.article ? postCovers[page.index] : postCovers[0];
+  const imageAlt = "coverAlt" in page ? page.coverAlt : page.title;
   return {
     title: { absolute: page.title.includes("XRUFY") ? page.title : `${page.title} | XRUFY` }, description: page.description,
     alternates: { canonical: url, languages: languageAlternates(path) },
-    keywords: page.title,
-    openGraph: { title: page.title, description: page.description, url, siteName: "XRUFY", locale: ogLocales[locale], type: page.article ? "article" : "website", images: [{ url: image, alt: page.title }] },
+    keywords: "keywords" in page ? page.keywords : page.title,
+    openGraph: { title: page.title, description: page.description, url, siteName: "XRUFY", locale: ogLocales[locale], type: page.article ? "article" : "website", ...(page.article ? { publishedTime: postDates[page.index], modifiedTime: page.index === 2 ? postDates[page.index] : "2026-09-21" } : {}), images: [{ url: image, alt: imageAlt }] },
     twitter: { card: "summary_large_image", title: page.title, description: page.description, images: [image] },
   };
 }
@@ -42,14 +44,14 @@ function localizeLinks(markdown: string, locale: TranslatedLocale) {
 export function LocalizedSite({ locale, path }: { locale: TranslatedLocale; path: string }) {
   const d = getDictionary(locale), page = contentFor(locale, path);
   const link = (route: string) => localePath(locale, route);
-  const posts = d.posts.map((post, index) => ({ ...post, slug: translatedSlugs[index], cover: postCovers[index] }));
+  const posts = d.posts.map((post, index) => ({ ...post, slug: translatedSlugs[index], cover: postCovers[index], date: postDates[index] })).sort((a, b) => b.date.localeCompare(a.date));
   const shop = <a href={AMAZON_PRODUCT_URL} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex rounded-full bg-[#e85d04] px-6 py-3 font-semibold text-white hover:bg-[#c94f03]">{d.nav[4]} ↗</a>;
-  const date = page.index === 1 ? "2026-06-12" : "2026-09-21";
+  const date = postDates[page.index] ?? "2026-09-21";
   const url = `https://xrufy.com${link(path)}`;
   const schema = page.article ? {
     "@context": "https://schema.org", "@type": "BlogPosting", headline: page.title,
     description: page.description, inLanguage: locale, url, mainEntityOfPage: url,
-    datePublished: date, dateModified: "2026-09-21", author: { "@type": "Organization", name: "XRUFY", url: "https://xrufy.com" },
+    datePublished: date, dateModified: page.index === 2 ? date : "2026-09-21", author: { "@type": "Organization", name: "XRUFY", url: "https://xrufy.com" },
     publisher: { "@type": "Organization", name: "XRUFY" }, image: `https://xrufy.com${postCovers[page.index]}`,
   } : { "@context": "https://schema.org", "@type": "WebPage", name: page.title, description: page.description, inLanguage: locale, url };
   const breadcrumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
@@ -77,7 +79,7 @@ export function LocalizedSite({ locale, path }: { locale: TranslatedLocale; path
         <section className="mx-auto max-w-5xl px-5 py-14"><h2 className="mb-6 text-3xl font-bold">{d.nav[1]}</h2><LocalizedBlogList posts={posts} locale={locale} search={d.search} noResults={d.noResults} read={d.read} /></section>
       </> : <article className="mx-auto max-w-3xl px-5 py-12 sm:py-16">
         <Link href={link(page.article ? "/blog/" : "/")} className="font-semibold text-orange-700">← {page.article ? d.back : d.nav[0]}</Link>
-        {page.article && <Image src={postCovers[page.index]} alt={page.title} width={1200} height={630} priority className="mt-8 w-full rounded-2xl border border-stone-200" />}
+        {page.article && <Image src={postCovers[page.index]} alt={"coverAlt" in page ? page.coverAlt ?? page.title : page.title} width={1200} height={630} priority className="mt-8 w-full rounded-2xl border border-stone-200" />}
         <h1 className="mt-8 text-4xl font-extrabold leading-tight">{page.title}</h1>
         <p className="mt-5 text-lg leading-relaxed text-stone-600">{page.description}</p>
         {page.article && <p className="mt-4 text-sm text-stone-500"><time dateTime={date}>{new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(date))}</time> · {d.team}</p>}

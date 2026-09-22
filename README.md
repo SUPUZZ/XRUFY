@@ -30,7 +30,8 @@ npm run build
 
 - 英文页面位于 `web/src/app/(english)/`，英文文章位于 `web/content/blog/`。
 - 六种翻译内容和表单文案位于 `web/src/lib/locales/`。
-- 添加文章时，同步更新六份词典及 `web/src/lib/translations.ts` 中的文章和页面清单，并在 `LocalizedSite.tsx` 中维护封面、日期映射。
+- 新增英文文章后会自动加入英文博客列表和站点地图。未翻译的文章只显示英文入口，不生成不存在的其他语言链接。
+- 补齐翻译时，同步更新六份词典及 `web/src/lib/localization.ts` 中的文章和页面清单，并在 `LocalizedSite.tsx` 中维护封面、日期映射。
 - 页面会生成独立 canonical、多语言 hreflang、分享信息和结构化数据；站点地图由 `web/src/app/sitemap.ts` 生成。
 
 构建后运行多语言检查，校验导出页面、语言标记、链接、文章结构化数据和站点地图：

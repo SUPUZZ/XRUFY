@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { isLocale, languageNames, localePath, locales, type Locale } from "@/lib/localization";
+import { availableLocales, isLocale, languageNames, localePath, type Locale } from "@/lib/localization";
 
 export function LanguageSwitcher({ locale = "en" }: { locale?: Locale }) {
   const pathname = usePathname();
@@ -22,7 +22,7 @@ export function LanguageSwitcher({ locale = "en" }: { locale?: Locale }) {
         <span aria-hidden="true">◎ </span>{languageNames[locale]}<span aria-hidden="true"> ▾</span>
       </summary>
       <nav aria-label="Language" className="absolute right-0 z-[60] mt-2 w-44 rounded-xl border border-stone-200 bg-white p-2 shadow-lg">
-        {locales.map(target => <a key={target} href={localePath(target, pathname)} hrefLang={target} lang={target}
+        {availableLocales(pathname).map(target => <a key={target} href={localePath(target, pathname)} hrefLang={target} lang={target}
           aria-current={target === locale ? "true" : undefined}
           className={`block rounded-lg px-3 py-2 text-sm hover:bg-orange-50 ${target === locale ? "font-bold text-orange-700" : "text-stone-800"}`}
           onClick={event => {
